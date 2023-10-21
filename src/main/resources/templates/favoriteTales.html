@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Favorite tales List:</h1>
+<ul>
+    <li th:each="tale : ${tales}">
+        <span th:text="${tale.title}">Title</span>
+        <span th:text="${tale.year}">Year</span>
+    </li>
+</ul>
+
+</body>
+</html>
