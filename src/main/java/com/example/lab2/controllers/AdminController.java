@@ -64,6 +64,9 @@ public class AdminController {
 
     @PostMapping("/delete/{id}")
     public String deleteTale(@PathVariable("id") int id) {
+        Tale tale = taleService.getTaleById(id);
+        userService.removeTaleFromRead(tale);
+        userService.removeTaleFromFavorite(tale);
         taleService.deleteTale(id);
         ratingService.deleteRating(id);
         return "redirect:/admin";
