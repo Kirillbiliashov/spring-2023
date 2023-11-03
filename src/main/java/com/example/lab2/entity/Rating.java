@@ -1,32 +1,23 @@
 package com.example.lab2.entity;
 
+import lombok.Data;
+
+@Data
 public class Rating {
-    private int taleId;
-    private int likes;
-    private int dislikes;
-
-    public Rating(int taleId, int likes, int dislikes) {
-        this.taleId = taleId;
+    private Tale tale;
+    private int likes = 0;
+    public Rating(Tale tale, int likes) {
+        this.tale = tale;
         this.likes = likes;
-        this.dislikes = dislikes;
     }
-
-    public Rating() {}
-
-    public int getTaleId() {
-        return taleId;
+    public Rating(Tale tale) {
+        this.tale = tale;
     }
-
-    public int getLikes() {
-        return likes;
+    public void addLike(){
+        likes++;
     }
-
-    public int getDislikes() {
-        return dislikes;
-    }
-
-    public double getLikeRatio() {
-        return  (double) likes / (double) dislikes;
+    public void removeLike(){
+        likes--;
     }
 
 }
