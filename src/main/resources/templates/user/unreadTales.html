@@ -5,7 +5,11 @@
     <title>Unread Tales</title>
 </head>
 <body>
-<h1>Unread Tales:</h1>
+
+<h1 th:if="${tales.size() == 0}">No tales are read</h1>
+<h1 th:if="${tales.size() == 1}">Unread Tale:</h1>
+<h1 th:unless="${tales.size() <= 1}">Unread Tales:</h1>
+
 <ul>
     <li th:each="tale : ${tales}">
         <span>Title: </span>

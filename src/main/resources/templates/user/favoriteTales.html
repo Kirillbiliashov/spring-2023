@@ -5,7 +5,13 @@
     <title>Favorite Tales</title>
 </head>
 <body>
-<h1>Favorite Tales: </h1>
+
+<div th:switch="${tales.size()}">
+    <div th:case="0">No tales in favorite</div>
+    <div th:case="1">Favorite Tale:</div>
+    <div th:case="*">Favorite Tales: </div>
+</div>
+
 <ul>
     <li th:each="tale : ${tales}">
         <span>Title: </span>
