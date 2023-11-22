@@ -8,10 +8,8 @@
 <h1>Best Tales:</h1>
 <ul>
     <li th:each="rating : ${ratings}">
-        <span>Tale: </span>
-        <span th:text="${rating.tale.title}"></span>
-        <span>Likes: </span>
-        <span th:text="${rating.likes}"></span>
+        <span th:text="'Tale: ' + ${rating.tale.title}" th:style="${rating.likes > 100 ? 'color: green; font-weight: bold;' : 'color: red;  font-weight: bold;'}"></span>
+        <span th:text="'Likes: ' + ${rating.likes}" th:style="${rating.likes > 100 ? 'color: green;' : 'color: red;'}"></span>
     </li>
 </ul>
 </body>
