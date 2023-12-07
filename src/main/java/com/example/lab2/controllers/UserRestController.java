@@ -34,12 +34,18 @@ public class UserRestController {
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUser(@PathVariable("userId") Long id) {
         User user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{userId}/favorite")
     public ResponseEntity<List<Tale>> getFavoriteTales(@PathVariable("userId") Long userId) {
-        TreeSet<Long> userTales= userService.getFavoriteTales(userId);
+        if (userService.getUserById(userId) == null) {
+            return ResponseEntity.notFound().build();
+        }
+        TreeSet<Long> userTales = userService.getFavoriteTales(userId);
         List<Tale> favoriteTales = userTales.stream()
                 .map(taleService::getTaleById)
                 .filter(Objects::nonNull)
@@ -50,7 +56,10 @@ public class UserRestController {
 
     @GetMapping("/{userId}/unread")
     public ResponseEntity<List<Tale>> getUnreadTales(@PathVariable("userId") Long userId) {
-        TreeSet<Long> userTales= userService.getUnreadTales(userId);
+        if (userService.getUserById(userId) == null) {
+            return ResponseEntity.notFound().build();
+        }
+        TreeSet<Long> userTales = userService.getUnreadTales(userId);
         List<Tale> unreadTales = userTales.stream()
                 .map(taleService::getTaleById)
                 .filter(Objects::nonNull)
@@ -65,7 +74,9 @@ public class UserRestController {
             @PathVariable("taleId") Long taleId,
             @RequestParam("like") boolean like,
             @RequestParam("read") boolean read) {
-
+    if (userService.getUserById(userId) == null || taleService.getTaleById(taleId) == null) {
+            return ResponseEntity.notFound().build();
+    }
         if (like) {
             taleService.addLikeToTale(userId, taleId);
             userService.addToFavorites(userId, taleId);

@@ -51,6 +51,6 @@ public class AdminRestController {
     @DeleteMapping("/tales/{id}")
     public ResponseEntity<Void> deleteTale(@PathVariable("id") Long id) {
         taleService.deleteTale(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

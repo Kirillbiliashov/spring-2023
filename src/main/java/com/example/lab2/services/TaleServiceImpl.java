@@ -2,6 +2,8 @@ package com.example.lab2.services;
 
 import com.example.lab2.entity.Tale;
 import com.example.lab2.repository.InMemoryTaleRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -55,5 +57,8 @@ public class TaleServiceImpl implements TaleService {
             tale.getLikes().remove(userId);
             taleRepository.save(tale);
         }
+    }
+    public Page<Tale> getAllTalesPageWithFilter(PageRequest pageRequest, String filter) {
+        return taleRepository.findTalesPageWithFilter(pageRequest, filter);
     }
 }
