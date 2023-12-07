@@ -1,20 +1,14 @@
 package com.example.lab2.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 
-@Data
-@NoArgsConstructor
+import java.util.Set;
+import java.util.TreeSet;
+
+@Value
 public class Tale {
-    private int id;
-    private String title;
-    private String author;
-    private String content;
-    private boolean isRead = false;
-    public Tale(int id, String title, String author, String content) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.content = content;
-    }
+    Long id;
+    String title;
+    String author;
+    Set<Long> likes = new TreeSet<>();
 }
