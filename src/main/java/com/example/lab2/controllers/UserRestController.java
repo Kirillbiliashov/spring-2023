@@ -12,14 +12,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -62,13 +60,14 @@ public class UserRestController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     public ResponseEntity<User> getUser(@PathVariable("userId") Long id) {
-        User user = userService.getUserById(id);
-        if (user != null) {
+        try {
+            User user = userService.getUserById(id);
             return ResponseEntity.ok(user);
+        } catch (OpenApiResourceNotFoundException e){
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
-    }
 
+    }
     @GetMapping("/{userId}/favorite")
     @Operation(
             summary = "Get Favorite Tales",
@@ -84,12 +83,7 @@ public class UserRestController {
         if (userService.getUserById(userId) == null) {
             return ResponseEntity.notFound().build();
         }
-        TreeSet<Long> userTales = userService.getFavoriteTales(userId);
-        List<Tale> favoriteTales = userTales.stream()
-                .map(taleService::getTaleById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
+        List<Tale> favoriteTales = taleService.findFavoriteTalesByUserId(userId);
         return ResponseEntity.ok(favoriteTales);
     }
 
@@ -108,12 +102,7 @@ public class UserRestController {
         if (userService.getUserById(userId) == null) {
             return ResponseEntity.notFound().build();
         }
-        TreeSet<Long> userTales = userService.getUnreadTales(userId);
-        List<Tale> unreadTales = userTales.stream()
-                .map(taleService::getTaleById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
+        List<Tale> unreadTales = taleService.findUnreadTalesByUserId(userId);
         return ResponseEntity.ok(unreadTales);
     }
 
@@ -136,21 +125,18 @@ public class UserRestController {
             @PathVariable("taleId") Long taleId,
             @RequestParam("like") boolean like,
             @RequestParam("read") boolean read) {
-    if (userService.getUserById(userId) == null || taleService.getTaleById(taleId) == null) {
+    if (userService.getUserById(userId) == null || taleService.findById(taleId) == null) {
             return ResponseEntity.notFound().build();
     }
         if (like) {
             taleService.addLikeToTale(userId, taleId);
-            userService.addToFavorites(userId, taleId);
         } else {
             taleService.removeLikeFromTale(userId, taleId);
-            userService.removeFromFavorites(userId, taleId);
         }
-
-        if (!read) {
-            userService.addToUnread(userId, taleId);
+        if (read) {
+            taleService.addReadToTale(userId, taleId);
         } else {
-            userService.removeFromUnread(userId, taleId);
+            taleService.removeReadFromTale(userId, taleId);
         }
 
         return ResponseEntity.ok("User interaction updated successfully");

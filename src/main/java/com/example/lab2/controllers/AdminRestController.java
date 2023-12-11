@@ -11,11 +11,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -41,7 +40,7 @@ public class AdminRestController {
                             array = @ArraySchema(schema = @Schema(implementation = Tale.class))))
     })
     public ResponseEntity<List<Tale>> getAllTales() {
-        List<Tale> allTales = taleService.getAllTales().stream().toList();
+        List<Tale> allTales = taleService.findAll();
         return ResponseEntity.ok(allTales);
     }
 //CREATE
@@ -60,11 +59,8 @@ public class AdminRestController {
         if (taleDto.getId() != null) {
          return ResponseEntity.badRequest().build();
         }
-        Tale tale = taleService.save(taleDto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(tale.getId()).toUri();
-
-        return ResponseEntity.created(uri).body(tale);
+        Tale tale = taleService.create(taleDto);
+        return new ResponseEntity<>(tale, HttpStatus.CREATED);
     }
 //UPDATE
     @PutMapping("/tales/{id}")
@@ -83,8 +79,7 @@ public class AdminRestController {
         if (taleDto.getId()!=null && !taleDto.getId().equals(id)) {
             return ResponseEntity.badRequest().build();
         }
-        Tale tale = new Tale(id, taleDto.getTitle(), taleDto.getAuthor());
-        tale = taleService.save(tale);
+        Tale tale = taleService.update(taleDto);
         return ResponseEntity.ok(tale);
     }
 //DELETE
@@ -98,7 +93,7 @@ public class AdminRestController {
             @ApiResponse(responseCode = "204", description = "No Content"),
     })
     public ResponseEntity<Void> deleteTale(@PathVariable("id") Long id) {
-        taleService.deleteTale(id);
+        taleService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

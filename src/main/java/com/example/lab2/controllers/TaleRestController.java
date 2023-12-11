@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,18 +44,22 @@ public class TaleRestController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Page.class))),
     })
-    public ResponseEntity<Page<Tale>> getAllTales(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sort,
-            @RequestParam(required = false) String filter) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sort));
-        Page<Tale> tales;
-
-        tales = taleService.getAllTalesPageWithFilter(pageRequest, filter);
-
+    public ResponseEntity<List<Tale>> getAllTales() {
+        List<Tale> tales = taleService.findAll();
         return ResponseEntity.ok(tales);
     }
+//    public ResponseEntity<Page<Tale>> getAllTales(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size,
+//            @RequestParam(defaultValue = "id") String sort,
+//            @RequestParam(required = false) String filter) {
+//        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sort));
+//        Page<Tale> tales;
+//
+//        tales = taleService.getAllTalesPageWithFilter(pageRequest, filter);
+//
+//        return ResponseEntity.ok(tales);
+//    }
 
     @GetMapping("/{id}")
     @Operation(
@@ -72,7 +74,7 @@ public class TaleRestController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     public ResponseEntity<Tale> getTale(@PathVariable("id") Long id) {
-        Tale tale = taleService.getTaleById(id);
+        Tale tale = taleService.findById(id);
         if (tale != null) {
             return ResponseEntity.ok(tale);
         }
@@ -91,7 +93,7 @@ public class TaleRestController {
     })
     @GetMapping("/best")
     public ResponseEntity<List<Tale>> getBestTales() {
-        List<Tale> tales = taleService.findBestTales(4);
+        List<Tale> tales = taleService.findBestTales();
         return ResponseEntity.ok(tales);
     }
 }
