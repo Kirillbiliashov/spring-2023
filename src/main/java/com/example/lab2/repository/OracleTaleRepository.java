@@ -7,10 +7,11 @@ import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.*;
 import java.util.Collection;
@@ -21,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OracleTaleRepository implements TaleRepository {
     private final JdbcTemplate jdbcTemplate;
-    private static final String CREATE_TALE = "INSERT INTO TALES (title, author) VALUES (?, ?)";
+    private static final String INSERT_TALE = "INSERT INTO TALES (id, title, author) VALUES (?, ?, ?)";
 
     private static final String UPDATE_TALE = "UPDATE TALES SET title = ?, author = ? WHERE id = ?";
 
@@ -66,32 +67,28 @@ public class OracleTaleRepository implements TaleRepository {
     }
 
     @Override
-    public Long create(Tale tale) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(CREATE_TALE, new String[]{"id"});
-            ps.setString(1, tale.getTitle());
-            ps.setString(2, tale.getAuthor());
-            return ps;
-        }, keyHolder);
-
-        Number id = keyHolder.getKey();
-        return id != null ? id.longValue() : null;
-
+    public Tale save(Tale tale) {
+        if(update(tale) == 1 ) return tale;
+        return create(tale);
     }
-    @Override
-    public Tale update(Tale tale) {
-        jdbcTemplate.update(
-                connection -> {
-                    PreparedStatement ps = connection.prepareStatement(UPDATE_TALE);
-                    ps.setString(1, tale.getTitle());
-                    ps.setString(2, tale.getAuthor());
-                    ps.setLong(3, tale.getId());
-                    return ps;
-                }
+    public Tale create(Tale tale) {
+
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        PreparedStatementCreatorFactory pscf = new PreparedStatementCreatorFactory(INSERT_TALE,
+                Types.NUMERIC, Types.VARCHAR, Types.VARCHAR);
+        pscf.setGeneratedKeysColumnNames("ID");
+
+        PreparedStatementCreator psc = pscf.newPreparedStatementCreator(
+                new Object[] {tale.getId(), tale.getTitle(), tale.getAuthor()}
         );
-        return tale;
+        jdbcTemplate.update(psc, keyHolder);
+        Long newId = keyHolder.getKey().longValue();
+        return new Tale(newId, tale.getTitle(), tale.getAuthor());
+    }
+
+    public int update(Tale tale) {
+        return jdbcTemplate.update(UPDATE_TALE, tale.getTitle(), tale.getAuthor(), tale.getId());
     }
     @Override
     public void deleteById(Long id) {

@@ -65,37 +65,31 @@ public class TaleServiceImpl implements TaleService {
         return taleRepository.findById(id);
     }
     @Override
-    public Tale create(Tale tale) {
-        Long taleId = taleRepository.create(tale);
-        tale.setId(taleId);
-        return tale;
-    }
-    @Override
-    public Tale update(Tale tale) {
-        return taleRepository.update(tale);
+    public Tale save(Tale tale) {
+        return taleRepository.save(tale);
     }
     @Override
     public void deleteById(Long id) {
         taleRepository.deleteById(id);
     }
 
+    @Override
+    public Collection<Tale> findByCriteria(String criteria) {
+        return  taleRepository.findTaleByCriteria(criteria);
+    }
+    @Transactional
     public List<Tale> findBestTales() {
         return jdbcTemplate.query(FIND_BEST, OracleTaleRepository::mapRow);
     }
-
+    @Transactional
     public List<Tale> findFavoriteTalesByUserId(Long userId) {
 
         return jdbcTemplate.query(FIND_FAVORITE, OracleTaleRepository::mapRow, userId);
     }
+    @Transactional
     public List<Tale> findUnreadTalesByUserId(Long userId) {
         return jdbcTemplate.query(FIND_UNREAD, TaleServiceImpl::mapRow, userId);
     }
-
-    @Override
-    public Collection<Tale> findByCriteria(String criteria) {
-       return  taleRepository.findTaleByCriteria(criteria);
-    }
-
     @Transactional
     public void addLikeToTale(Long userId, Long taleId) {
         try {

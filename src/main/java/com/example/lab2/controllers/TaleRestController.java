@@ -49,19 +49,6 @@ public class TaleRestController {
         List<Tale> tales = taleService.findAll();
         return ResponseEntity.ok(tales);
     }
-//    public ResponseEntity<Page<Tale>> getAllTales(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//            @RequestParam(defaultValue = "id") String sort,
-//            @RequestParam(required = false) String filter) {
-//        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sort));
-//        Page<Tale> tales;
-//
-//        tales = taleService.getAllTalesPageWithFilter(pageRequest, filter);
-//
-//        return ResponseEntity.ok(tales);
-//    }
-
     @GetMapping("/{id}")
     @Operation(
             summary = "Get By Id",

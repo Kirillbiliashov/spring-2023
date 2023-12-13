@@ -11,10 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -59,8 +60,11 @@ public class AdminRestController {
         if (taleDto.getId() != null) {
          return ResponseEntity.badRequest().build();
         }
-        Tale tale = taleService.create(taleDto);
-        return new ResponseEntity<>(tale, HttpStatus.CREATED);
+        Tale tale = taleService.save(taleDto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(tale.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(tale);
     }
 //UPDATE
     @PutMapping("/tales/{id}")
@@ -79,7 +83,8 @@ public class AdminRestController {
         if (taleDto.getId()!=null && !taleDto.getId().equals(id)) {
             return ResponseEntity.badRequest().build();
         }
-        Tale tale = taleService.update(taleDto);
+        Tale tale = new Tale(id, taleDto.getTitle(), taleDto.getAuthor());
+        tale = taleService.save(tale);
         return ResponseEntity.ok(tale);
     }
 //DELETE

@@ -6,8 +6,7 @@ import java.util.*;
 public interface TaleService {
     List<Tale> findAll();
     Tale findById(Long id);
-    Tale create(Tale tale);
-    Tale update(Tale tale);
+    Tale save(Tale tale);
     void deleteById(Long id);
     List<Tale> findBestTales();
     void addReadToTale(Long userId, Long taleId);
@@ -16,7 +15,6 @@ public interface TaleService {
     void removeLikeFromTale(Long userId, Long taleId);
     List<Tale> findFavoriteTalesByUserId(Long userId);
     List<Tale> findUnreadTalesByUserId(Long userId);
-
     Collection<Tale> findByCriteria(String criteria);
 
 }

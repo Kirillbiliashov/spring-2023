@@ -7,6 +7,7 @@ import oracle.jdbc.pool.OracleDataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -20,6 +21,7 @@ import java.sql.SQLException;
                 @Server(url = "http://localhost:8080", description = "test server"),
         }
 )
+@EnableTransactionManagement
 @SpringBootApplication
 public class Lab2Application {
 
