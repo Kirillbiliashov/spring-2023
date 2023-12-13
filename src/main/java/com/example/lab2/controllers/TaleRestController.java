@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -96,4 +97,20 @@ public class TaleRestController {
         List<Tale> tales = taleService.findBestTales();
         return ResponseEntity.ok(tales);
     }
+
+    @GetMapping("/search")
+    @Operation(
+            summary = "Search Tales",
+            description = "Search tales by criteria"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Tale.class))))
+    })
+    public ResponseEntity<Collection<Tale>> searchTales(@RequestParam("criteria") String criteria) {
+        Collection<Tale> tales = taleService.findByCriteria(criteria);
+        return ResponseEntity.ok(tales);
+    }
+
 }

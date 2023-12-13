@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -89,6 +90,12 @@ public class TaleServiceImpl implements TaleService {
     public List<Tale> findUnreadTalesByUserId(Long userId) {
         return jdbcTemplate.query(FIND_UNREAD, TaleServiceImpl::mapRow, userId);
     }
+
+    @Override
+    public Collection<Tale> findByCriteria(String criteria) {
+       return  taleRepository.findTaleByCriteria(criteria);
+    }
+
     @Transactional
     public void addLikeToTale(Long userId, Long taleId) {
         try {
@@ -125,9 +132,4 @@ public class TaleServiceImpl implements TaleService {
         }
 
     }
-
-//
-//    public Page<Tale> getAllTalesPageWithFilter(PageRequest pageRequest, String filter) {
-//        return taleRepository.findTalesPageWithFilter(pageRequest, filter);
-//    }
 }

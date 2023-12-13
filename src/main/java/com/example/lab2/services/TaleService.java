@@ -16,4 +16,7 @@ public interface TaleService {
     void removeLikeFromTale(Long userId, Long taleId);
     List<Tale> findFavoriteTalesByUserId(Long userId);
     List<Tale> findUnreadTalesByUserId(Long userId);
+
+    Collection<Tale> findByCriteria(String criteria);
+
 }

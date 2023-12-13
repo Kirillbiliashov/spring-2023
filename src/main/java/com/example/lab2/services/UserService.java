@@ -10,4 +10,6 @@ public interface UserService {
     User getUserById(Long id);
     void save(User user);
     void deleteUser(Long id);
+
+    List<User> findByCriteria(String criteria);
 }

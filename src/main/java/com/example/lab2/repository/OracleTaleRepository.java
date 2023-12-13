@@ -1,10 +1,10 @@
 package com.example.lab2.repository;
 
 import com.example.lab2.entity.Tale;
+import com.example.lab2.entity.TaleRowMapper;
 import lombok.AllArgsConstructor;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.context.annotation.Primary;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.*;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -35,6 +36,9 @@ public class OracleTaleRepository implements TaleRepository {
                                              "WHERE t.id = ? " +
                                              "GROUP BY t.id, t.title, t.author";
     private static final String DELETE_BY_ID = "DELETE FROM tales WHERE id=?";
+
+
+    private static final String SEARCH_BY_CRITERIA = "SELECT * FROM TALES WHERE title LIKE ? OR author LIKE ?";
 
     public static Tale mapRow(ResultSet rs, int rowNum) throws SQLException {
         long id = rs.getLong("id");
@@ -97,9 +101,8 @@ public class OracleTaleRepository implements TaleRepository {
         }
     }
 
-//    @Override
-//    public Page<Tale> findTalesPageWithFilter(PageRequest pageRequest, String filter) {
-//        return null;
-//    }
-
+    @Override
+    public Collection<Tale> findTaleByCriteria(String criteria) {
+        return jdbcTemplate.query(SEARCH_BY_CRITERIA, new TaleRowMapper(), new Object[]{"%" + criteria + "%", "%" + criteria + "%"});
+    }
 }

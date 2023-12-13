@@ -1,6 +1,7 @@
 package com.example.lab2.repository;
 
 import com.example.lab2.entity.User;
+import com.example.lab2.entity.UserRowMapper;
 import lombok.AllArgsConstructor;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.context.annotation.Primary;
@@ -27,6 +28,9 @@ public class OracleUserRepository implements UserRepository {
     private static final String FIND_BY_ID = "SELECT id, name, email FROM users WHERE id=?";
     private static final String INSERT_USER = "INSERT INTO users (name, email) VALUES (?, ?)";
     private static final String DELETE_BY_ID = "DELETE FROM users WHERE id=?";
+
+    private static final String SEARCH_BY_CRITERIA = "SELECT * FROM users WHERE name LIKE ?  OR email LIKE ?";
+
 
     private static User mapRow (ResultSet rs, int rowNum) throws SQLException {
         return new User(rs.getLong(1), rs.getString(2), rs.getString(3));
@@ -66,4 +70,10 @@ public class OracleUserRepository implements UserRepository {
             throw new OpenApiResourceNotFoundException("User id=" + id + " not found");
         }
     }
+
+    @Override
+    public List<User> findUserByCriteria(String criteria) {
+        return jdbcTemplate.query(SEARCH_BY_CRITERIA, new UserRowMapper(), new Object[]{"%" + criteria + "%", "%" + criteria + "%"});
+    }
+
 }

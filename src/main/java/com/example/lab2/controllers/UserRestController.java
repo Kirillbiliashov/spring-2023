@@ -106,6 +106,8 @@ public class UserRestController {
         return ResponseEntity.ok(unreadTales);
     }
 
+
+
     @PutMapping("/{userId}/tales/{taleId}")
     @Operation(
             summary = "Update User Interaction",
@@ -141,4 +143,20 @@ public class UserRestController {
 
         return ResponseEntity.ok("User interaction updated successfully");
     }
+
+    @GetMapping("/search")
+    @Operation(
+            summary = "Search Users",
+            description = "Search users by criteria"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = User.class))))
+    })
+    public ResponseEntity<List<User>> searchUsers(@RequestParam("criteria") String criteria) {
+        List<User> users = userService.findByCriteria(criteria);
+        return ResponseEntity.ok(users);
+    }
+
 }

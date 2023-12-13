@@ -15,5 +15,6 @@ public interface TaleRepository {
     Tale update(Tale tale);
     void deleteById(Long id);
 
-//    Page<Tale> findTalesPageWithFilter(PageRequest pageRequest, String filter);
+    Collection<Tale> findTaleByCriteria(String criteria);
+
 }
