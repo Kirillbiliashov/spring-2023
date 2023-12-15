@@ -36,8 +36,14 @@ public class OracleTaleRepository implements TaleRepository {
                                              "LEFT JOIN TALES_LIKES l ON t.id = l.tale_id " +
                                              "WHERE t.id = ? " +
                                              "GROUP BY t.id, t.title, t.author";
-    private static final String DELETE_BY_ID = "DELETE FROM tales WHERE id=?";
+    private static final String DELETE_TALES_LIKES_BY_ID = "DELETE FROM tales_likes WHERE tale_id = ?";
+    private static final String DELETE_TALES_READS_BY_ID = "DELETE FROM tales_reads WHERE tale_id = ?";
+    private static final String DELETE_TALE_BY_ID = "DELETE FROM tales WHERE id = ?";
 
+
+    private static final String DELETE_BY_ID = "DELETE FROM tales_likes WHERE tale_id = ?;" +
+            "DELETE FROM tales_reads WHERE tale_id = ?;" +
+            "DELETE FROM tales WHERE id = ?";
 
     private static final String SEARCH_BY_CRITERIA = "SELECT * FROM TALES WHERE title LIKE ? OR author LIKE ?";
 
@@ -92,7 +98,9 @@ public class OracleTaleRepository implements TaleRepository {
     }
     @Override
     public void deleteById(Long id) {
-        int rowsAffected = jdbcTemplate.update(DELETE_BY_ID, id);
+        jdbcTemplate.update(DELETE_TALES_LIKES_BY_ID, id);
+        jdbcTemplate.update(DELETE_TALES_READS_BY_ID, id);
+        int rowsAffected = jdbcTemplate.update(DELETE_TALE_BY_ID, id);
         if (rowsAffected == 0) {
             throw new OpenApiResourceNotFoundException("Tale id=" + id + " not found");
         }
