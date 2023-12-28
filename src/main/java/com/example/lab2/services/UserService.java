@@ -1,15 +1,13 @@
 package com.example.lab2.services;
 
-import com.example.lab2.entity.Tale;
-import com.example.lab2.entity.User;
+import com.example.lab2.Dto.UserDto;
 
 import java.util.*;
 
 public interface UserService {
-    List<User> getAllUsers();
-    User getUserById(Long id);
-    void save(User user);
+    List<UserDto> getAllUsers();
+    Optional<UserDto> getUserById(Long id);
+    void save(UserDto userDto);
     void deleteUser(Long id);
-
-    List<User> findByCriteria(String criteria);
+    List<UserDto> findByCriteria(String criteria);
 }

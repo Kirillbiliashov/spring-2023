@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.servers.Server;
 import oracle.jdbc.pool.OracleDataSource;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -22,6 +24,7 @@ import java.sql.SQLException;
         }
 )
 @EnableTransactionManagement
+@EnableJpaRepositories
 @SpringBootApplication
 public class Lab2Application {
 
@@ -39,4 +42,8 @@ public class Lab2Application {
         return dataSource;
     }
 
+    @Bean
+    ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 }
