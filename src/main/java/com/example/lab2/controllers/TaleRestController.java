@@ -1,6 +1,7 @@
 package com.example.lab2.controllers;
 
-import com.example.lab2.entity.Tale;
+import com.example.lab2.Dto.TaleDto;
+import com.example.lab2.Dto.TaleWithLikesDto;
 import com.example.lab2.services.TaleServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,12 +11,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -32,23 +32,18 @@ public class TaleRestController {
     @GetMapping("")
     @Operation(
             summary = "Get All Tales",
-            description = "Get a paginated list of all tales",
-            parameters = {
-                    @Parameter(name = "page", description = "Page number (default: 0)", example = "0"),
-                    @Parameter(name = "size", description = "Number of items per page (default: 10)", example = "10"),
-                    @Parameter(name = "sort", description = "Sort field (default: id)", example = "1"),
-                    @Parameter(name = "filter", description = "Optional filter to apply")
-            }
+            description = "Get a list of all tales"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Page.class))),
+                            schema = @Schema(implementation = TaleDto.class))),
     })
-    public ResponseEntity<List<Tale>> getAllTales() {
-        List<Tale> tales = taleService.findAll();
+    public ResponseEntity<List<TaleDto>> getAllTales() {
+        List<TaleDto> tales = taleService.findAll();
         return ResponseEntity.ok(tales);
     }
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Get By Id",
@@ -58,15 +53,17 @@ public class TaleRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Tale.class))),
+                            schema = @Schema(implementation = TaleDto.class))),
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
-    public ResponseEntity<Tale> getTale(@PathVariable("id") Long id) {
-        Tale tale = taleService.findById(id);
-        if (tale != null) {
+    public ResponseEntity<TaleDto> getTale(@PathVariable("id") Long id) {
+        try {
+            TaleDto tale = taleService.findById(id)
+                    .orElseThrow(() -> new OpenApiResourceNotFoundException("Tale id=" + id + " not found"));
             return ResponseEntity.ok(tale);
+        } catch (OpenApiResourceNotFoundException e){
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
     }
 
     @Operation(
@@ -77,11 +74,11 @@ public class TaleRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = Tale.class)))),
+                            array = @ArraySchema(schema = @Schema(implementation = TaleWithLikesDto.class)))),
     })
     @GetMapping("/best")
-    public ResponseEntity<List<Tale>> getBestTales() {
-        List<Tale> tales = taleService.findBestTales();
+    public ResponseEntity<List<TaleWithLikesDto>> getBestTales() {
+        List<TaleWithLikesDto> tales = taleService.findBestTales();
         return ResponseEntity.ok(tales);
     }
 
@@ -93,10 +90,10 @@ public class TaleRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = Tale.class))))
+                            array = @ArraySchema(schema = @Schema(implementation = TaleDto.class))))
     })
-    public ResponseEntity<Collection<Tale>> searchTales(@RequestParam("criteria") String criteria) {
-        Collection<Tale> tales = taleService.findByCriteria(criteria);
+    public ResponseEntity<List<TaleDto>> searchTales(@RequestParam("criteria") String criteria) {
+        List<TaleDto> tales = taleService.findByCriteria(criteria);
         return ResponseEntity.ok(tales);
     }
 

@@ -1,6 +1,6 @@
 package com.example.lab2.controllers;
 
-import com.example.lab2.entity.Tale;
+import com.example.lab2.Dto.TaleDto;
 import com.example.lab2.services.TaleServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,13 +38,13 @@ public class AdminRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = Tale.class))))
+                            array = @ArraySchema(schema = @Schema(implementation = TaleDto.class))))
     })
-    public ResponseEntity<List<Tale>> getAllTales() {
-        List<Tale> allTales = taleService.findAll();
+    public ResponseEntity<List<TaleDto>> getAllTales() {
+        List<TaleDto> allTales = taleService.findAll();
         return ResponseEntity.ok(allTales);
     }
-//CREATE
+    //CREATE
     @PostMapping("/tales")
     @Operation(
             summary = "Create Tale",
@@ -53,20 +53,20 @@ public class AdminRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Tale.class))),
+                            schema = @Schema(implementation = TaleDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
     })
-    public ResponseEntity<Tale> createTale(@RequestBody Tale taleDto) {
+    public ResponseEntity<TaleDto> createTale(@RequestBody TaleDto taleDto) {
         if (taleDto.getId() != null) {
-         return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().build();
         }
-        Tale tale = taleService.save(taleDto);
+        TaleDto savedTale = taleService.save(taleDto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(tale.getId()).toUri();
+                .path("/{id}").buildAndExpand(savedTale.getId()).toUri();
 
-        return ResponseEntity.created(uri).body(tale);
+        return ResponseEntity.created(uri).body(savedTale);
     }
-//UPDATE
+    //UPDATE
     @PutMapping("/tales/{id}")
     @Operation(
             summary = "Edit Tale",
@@ -76,18 +76,17 @@ public class AdminRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Tale.class))),
+                            schema = @Schema(implementation = TaleDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
     })
-    public ResponseEntity<Tale> editTale(@PathVariable Long id, @RequestBody Tale taleDto) {
+    public ResponseEntity<TaleDto> editTale(@PathVariable Long id, @RequestBody TaleDto taleDto) {
         if (taleDto.getId()!=null && !taleDto.getId().equals(id)) {
             return ResponseEntity.badRequest().build();
         }
-        Tale tale = new Tale(id, taleDto.getTitle(), taleDto.getAuthor());
-        tale = taleService.save(tale);
-        return ResponseEntity.ok(tale);
+        TaleDto updatedTale = taleService.save(taleDto);
+        return ResponseEntity.ok(updatedTale);
     }
-//DELETE
+    //DELETE
     @DeleteMapping("/tales/{id}")
     @Operation(
             summary = "Delete Tale",
@@ -102,3 +101,4 @@ public class AdminRestController {
         return ResponseEntity.noContent().build();
     }
 }
+

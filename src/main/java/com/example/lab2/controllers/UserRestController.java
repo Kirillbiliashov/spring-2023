@@ -1,7 +1,7 @@
 package com.example.lab2.controllers;
 
-import com.example.lab2.entity.Tale;
-import com.example.lab2.entity.User;
+import com.example.lab2.Dto.TaleDto;
+import com.example.lab2.Dto.UserDto;
 import com.example.lab2.services.TaleServiceImpl;
 import com.example.lab2.services.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,10 +40,10 @@ public class UserRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = User.class))))
+                            array = @ArraySchema(schema = @Schema(implementation = UserDto.class))))
     })
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
@@ -56,18 +56,19 @@ public class UserRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = User.class))),
+                            schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
-    public ResponseEntity<User> getUser(@PathVariable("userId") Long id) {
+    public ResponseEntity<UserDto> getUser(@PathVariable("userId") Long id) {
         try {
-            User user = userService.getUserById(id);
+            UserDto user = userService.getUserById(id)
+                    .orElseThrow(() -> new OpenApiResourceNotFoundException("User id=" + id + " not found"));
             return ResponseEntity.ok(user);
         } catch (OpenApiResourceNotFoundException e){
             return ResponseEntity.notFound().build();
         }
-
     }
+
     @GetMapping("/{userId}/favorite")
     @Operation(
             summary = "Get Favorite Tales",
@@ -77,13 +78,10 @@ public class UserRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = Tale.class))))
+                            array = @ArraySchema(schema = @Schema(implementation = TaleDto.class))))
     })
-    public ResponseEntity<List<Tale>> getFavoriteTales(@PathVariable("userId") Long userId) {
-        if (userService.getUserById(userId) == null) {
-            return ResponseEntity.notFound().build();
-        }
-        List<Tale> favoriteTales = taleService.findFavoriteTalesByUserId(userId);
+    public ResponseEntity<List<TaleDto>> getFavoriteTales(@PathVariable("userId") Long userId) {
+        List<TaleDto> favoriteTales = taleService.findFavoriteTalesByUserId(userId);
         return ResponseEntity.ok(favoriteTales);
     }
 
@@ -96,25 +94,20 @@ public class UserRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = Tale.class))))
+                            array = @ArraySchema(schema = @Schema(implementation = TaleDto.class))))
     })
-    public ResponseEntity<List<Tale>> getUnreadTales(@PathVariable("userId") Long userId) {
-        if (userService.getUserById(userId) == null) {
-            return ResponseEntity.notFound().build();
-        }
-        List<Tale> unreadTales = taleService.findUnreadTalesByUserId(userId);
+    public ResponseEntity<List<TaleDto>> getUnreadTales(@PathVariable("userId") Long userId) {
+        List<TaleDto> unreadTales = taleService.findUnreadTalesByUserId(userId);
         return ResponseEntity.ok(unreadTales);
     }
-
-
 
     @PutMapping("/{userId}/tales/{taleId}")
     @Operation(
             summary = "Update User Interaction",
             description = "Update user interaction with a tale (like, read)",
             parameters = {
-                @Parameter(name = "userId", description = "Tale Id", example = "1"),
-                @Parameter(name = "taleId", description = "User Id", example = "2"),
+                    @Parameter(name = "userId", description = "Tale Id", example = "1"),
+                    @Parameter(name = "taleId", description = "User Id", example = "2"),
             }
     )
     @ApiResponses({
@@ -127,19 +120,10 @@ public class UserRestController {
             @PathVariable("taleId") Long taleId,
             @RequestParam("like") boolean like,
             @RequestParam("read") boolean read) {
-    if (userService.getUserById(userId) == null || taleService.findById(taleId) == null) {
+        if (userService.getUserById(userId).isEmpty() || taleService.findById(taleId).isEmpty()) {
             return ResponseEntity.notFound().build();
-    }
-        if (like) {
-            taleService.addLikeToTale(userId, taleId);
-        } else {
-            taleService.removeLikeFromTale(userId, taleId);
         }
-        if (read) {
-            taleService.addReadToTale(userId, taleId);
-        } else {
-            taleService.removeReadFromTale(userId, taleId);
-        }
+        taleService.updateUserInteraction(userId, taleId, like, read);
 
         return ResponseEntity.ok("User interaction updated successfully");
     }
@@ -152,10 +136,10 @@ public class UserRestController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = User.class))))
+                            array = @ArraySchema(schema = @Schema(implementation = UserDto.class))))
     })
-    public ResponseEntity<List<User>> searchUsers(@RequestParam("criteria") String criteria) {
-        List<User> users = userService.findByCriteria(criteria);
+    public ResponseEntity<List<UserDto>> searchUsers(@RequestParam("criteria") String criteria) {
+        List<UserDto> users = userService.findByCriteria(criteria);
         return ResponseEntity.ok(users);
     }
 
