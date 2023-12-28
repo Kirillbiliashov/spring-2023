@@ -1,20 +1,27 @@
 package com.example.lab2.entity;
 
-import lombok.Data;
-import lombok.Value;
+import jakarta.persistence.*;
+import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "USERS")
 public class User {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
     String email;
 
-    public User(long id, String name, String email) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-    }
+    @ManyToMany(mappedBy = "likedByUsers")
+    @ToString.Exclude @EqualsAndHashCode.Exclude
+    Set<Tale> favoriteTales = new HashSet<>();
 
-    public User(){}
+    @ManyToMany(mappedBy = "readByUsers")
+    @ToString.Exclude @EqualsAndHashCode.Exclude
+    Set<Tale> readTales = new HashSet<>();
 }
-
